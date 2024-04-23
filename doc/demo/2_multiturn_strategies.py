@@ -44,14 +44,17 @@ attack_strategy = AttackStrategy(
 # In this case, it's a deployed AML endpoint called mistralai-mixtral-8x7b-instru-2
 # but it can be any supported endpoint.
 # mixtral disallows system prompts, so we include a chat_message_normalizer to squash them:
-red_teaming_chat = AzureMLChatTarget(chat_message_normalizer=GenericSystemSquash())
+red_teaming_chat = AzureMLChatTarget(
+    endpoint_uri=os.environ.get("AZURE_ML_SCORE_URI"),
+    api_key=os.environ.get("AZURE_ML_SCORE_API_KEY"),
+    chat_message_normalizer=GenericSystemSquash(),
+)
 
 prompt_target = AzureOpenAIChatTarget(
-    deployment_name="defense-gpt35",
+    deployment_name=os.environ.get("AZURE_OPENAI_CHAT_DEPLOYMENT"),
     endpoint=os.environ.get("AZURE_OPENAI_CHAT_ENDPOINT"),
     api_key=os.environ.get("AZURE_OPENAI_CHAT_KEY"),
 )
-
 
 with EndTokenRedTeamingOrchestrator(
     attack_strategy=attack_strategy,
@@ -62,4 +65,9 @@ with EndTokenRedTeamingOrchestrator(
 ) as red_teaming_orchestrator:
     red_teaming_orchestrator.apply_attack_strategy_until_completion(max_turns=3)
 
+    memory = red_teaming_orchestrator.get_memory()
+    for entry in memory:
+        print(
+            f"conversation_id: {entry.conversation_id}\n id: {entry.id}\n labels: {entry.labels}\n role: {entry.role}\n {entry.converted_prompt_text}\n"
+        )
 # %%
