@@ -66,3 +66,6 @@ for prompt_entry in prompt_entries:
 memory.dispose_engine()
 
 # %%
+memory = DuckDBMemory()
+memory.get_all_prompt_entries()
+# %%
