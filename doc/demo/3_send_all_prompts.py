@@ -131,8 +131,7 @@ with PromptSendingOrchestrator(prompt_target=target) as orchestrator:
 
 import pathlib
 
-from pyrit.common.path import DATASETS_PATH
-from pyrit.models import PromptDataset
+
 from pyrit.prompt_target import AzureOpenAIChatTarget
 
 from pyrit.common import default_values
